@@ -1,0 +1,8 @@
+<!doctype html><meta name=viewport content="width=device-width,initial-scale=1"><title>scrcpy Web</title><style>*{box-sizing:border-box}html,body{margin:0;background:#000;color:#fff;width:100%;height:100%;overflow:hidden}canvas{width:100%;height:100%;object-fit:contain;display:block}</style><canvas id=c></canvas><script>
+const c=document.getElementById('c'),x=c.getContext('2d'),u='ws://'+location.host;let w,h,t=0,q=[],d;
+function nal(b){let i=0,s=0;for(;i+3<b.length;i++)if(b[i]===0&&b[i+1]===0&&(b[i+2]===1||(b[i+2]===0&&b[i+3]===1))){let n=b[i+2]===1?i+3:i+4;if(n>0)q.push(b.slice(s,i));s=n;i=n}if(s<b.length)q.push(b.slice(s))}
+function dec(){if(!d)return;while(q.length){let b=q.shift(),i=0;if(b[0]===0&&b[1]===0)i=b[2]===1?3:4;let ty=b[i]&31;if(!ty)continue;try{d.decode(new EncodedVideoChunk({type:ty===5?'key':'delta',timestamp:t++,data:b}))}catch(e){}}}
+d=new VideoDecoder({output:v=>{w=v.displayWidth;h=v.displayHeight;if(c.width!==w||c.height!==h)c.width=w,c.height=h;x.drawImage(v,0,0,w,h);v.close()},error:e=>console.error(e)});
+try{d.configure({codec:'avc1.640028',hardwareAcceleration:'prefer-hardware',optimizeForLatency:true})}catch(e){console.error(e)}
+const s=new WebSocket(u);s.binaryType='arraybuffer';s.onmessage=e=>{nal(new Uint8Array(e.data));dec()};s.onclose=()=>location.reload();
+</script>
